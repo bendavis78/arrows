@@ -39,8 +39,8 @@ export const pathListSVG = (points) => {
 };
 
 const pathViewportFromAndTo = ({ from, to, pathXYPosition }) => ({
-  width: Math.max(from.x, to.x) - pathXYPosition.x,
-  height: Math.max(from.y, to.y) - pathXYPosition.y,
+  width: Math.max(from.x, to.x),
+  height: Math.max(from.y, to.y),
 });
 
 const pathReducer = (points, reducer) => points.reduce((prev, curr) => {
@@ -73,35 +73,26 @@ const pathListBezier = ({ from, to, pathXYPosition }) => {
   return pathSubstractStartPosition(points);
 };
 
-const windowScroll = () => {
-  if (!window) return { scrollX: 0, scrollY: 0 };
-  return {
-    x: window.scrollX,
-    y: window.scrollY,
-  };
-};
-
 const pathOffset = (points, pathXYPosition) => {
   const minPoint = (prop) => Math.min(
     points[0][prop] - ARROW_HEAD_SIZE,
     points[3][prop] - ARROW_HEAD_SIZE,
   );
 
-  const scroll = windowScroll();
-
   return {
-    x: pathXYPosition.x - minPoint('x') - ARROW_HEAD_SIZE + scroll.x,
-    y: pathXYPosition.y - minPoint('y') - ARROW_HEAD_SIZE + scroll.y,
+    x: pathXYPosition.x - minPoint('x') - ARROW_HEAD_SIZE,
+    y: pathXYPosition.y - minPoint('y') - ARROW_HEAD_SIZE,
   };
 };
 
 const path = (from, to) => {
   const pathXYPosition = startPosition(from, to);
-  const points = pathListBezier({
+  const thing = {
     from: pointAbsolute(from, pathXYPosition),
     to: pointAbsolute(to, pathXYPosition),
     pathXYPosition,
-  });
+  }
+  const points = pathListBezier(thing);
 
   const size = pathReducer(points, (prev, curr) => ({
     x: Math.max(prev.x, curr.x),

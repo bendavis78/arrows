@@ -3,8 +3,8 @@ import ends from './arrow/ends';
 import path from './arrow/path';
 import observer from './observer/observer';
 
-const arrowCreate = ({ className = 'arrow', from, to }) => {
-  const arrow = path(ends(from), ends(to));
+const arrowCreate = ({ className = 'arrow', from, to, parent}) => {
+  const arrow = path(ends(from, parent), ends(to, parent));
 
   const arrowRef = Element.createRef();
   const pathRef = Element.createRef();
@@ -30,9 +30,8 @@ const arrowCreate = ({ className = 'arrow', from, to }) => {
     </svg>
   );
 
-  const watcher = observer(from, to);
-  watcher.observe(() => {
-    const nextArrow = path(ends(from), ends(to));
+  function updateArrow() {
+    const nextArrow = path(ends(from, parent), ends(to, parent));
     arrowRef.current.style.top = `${nextArrow.offset.y}px`;
     arrowRef.current.style.left = `${nextArrow.offset.x}px`;
     arrowRef.current.style.width = `${nextArrow.size.width}px`;
@@ -44,11 +43,16 @@ const arrowCreate = ({ className = 'arrow', from, to }) => {
 
     headRef.current.setAttribute('x', `${nextArrow.head.x - 10}px`);
     headRef.current.setAttribute('y', `${nextArrow.head.y - 10}px`);
-  });
+  }
+
+  const watcher = observer(from, to);
 
   return {
     node,
-    timer: watcher.timer,
+    observe: () => {
+      watcher.observe(updateArrow);
+      return timer;
+    }
   };
 };
 
